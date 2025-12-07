@@ -171,6 +171,34 @@
         .bp-value { font-size: 1.4rem; font-weight: 900; color: var(--text-color); }
         .bp-unit { font-size: 0.8rem; color: #888; font-weight: normal; }
 
+        /* ========= 新增功能：健康建議區塊樣式 ========= */
+        .advice-box {
+            margin-top: 25px;
+            padding: 15px 20px;
+            border-radius: 16px;
+            background: #f9f9f9;
+            border-left: 6px solid #ccc;
+            display: none; /* 預設隱藏，有數據才顯示 */
+            animation: fadeIn 0.5s;
+        }
+        .advice-box.show { display: block; }
+
+        .advice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .advice-title { font-weight: bold; color: #666; font-size: 0.95rem; }
+        .advice-avg-val { font-size: 1.2rem; font-weight: 900; color: #444; }
+        .advice-desc { font-size: 0.9rem; line-height: 1.5; color: #555; }
+
+        /* 狀態顏色 */
+        .status-green { border-left-color: #83BCA9; background-color: #F2FAF7; }
+        .status-yellow { border-left-color: #F4D35E; background-color: #FFFCF0; }
+        .status-red { border-left-color: #E5989B; background-color: #FFF5F5; }
+        /* ============================================== */
+
         /* 趨勢圖區 */
         .chart-section {
             margin-top: 30px;
@@ -185,7 +213,6 @@
         }
         .chart-title { font-size: 1rem; color: var(--theme-color); font-weight: bold; margin: 0; }
         
-        /* 下拉選單樣式 */
         .chart-filter {
             padding: 5px 10px;
             border-radius: 15px;
@@ -197,7 +224,7 @@
             outline: none;
         }
 
-        /* --- 彈跳視窗 (Modal) 重構 --- */
+        /* --- 彈跳視窗 (Modal) --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -228,16 +255,14 @@
             font-weight: bold;
         }
 
-        /* 左右並排容器 */
         .modal-dual-inputs {
             display: flex;
-            gap: 15px; /* 兩個輸入框中間的間距 */
+            gap: 15px;
             margin-bottom: 25px;
         }
 
-        /* 個別輸入區塊 */
         .input-block {
-            flex: 1; /* 平均分配寬度 */
+            flex: 1;
             background: #F7F9FC;
             padding: 15px 10px;
             border-radius: 16px;
@@ -246,7 +271,6 @@
             transition: border-color 0.3s;
         }
 
-        /* 當輸入框聚焦時，外框變色 */
         .input-block:focus-within {
             border-color: var(--theme-color);
             background: #fff;
@@ -262,7 +286,7 @@
 
         .input-field {
             width: 100%;
-            font-size: 1.8rem; /* 字體加大，方便點擊 */
+            font-size: 1.8rem;
             font-family: "Kiwi Maru";
             font-weight: 900;
             color: var(--theme-color);
@@ -272,7 +296,6 @@
             padding: 0;
             outline: none;
         }
-        /* 修正 placeholder 顏色 */
         .input-field::placeholder { color: #ddd; font-weight: normal; font-size: 1.5rem; }
 
         .modal-btns { display: flex; gap: 10px; }
@@ -330,6 +353,15 @@
                 </div>
             </div>
 
+            <div id="adviceBox" class="advice-box">
+                <div class="advice-header">
+                    <span class="advice-title">🩺 今日平均與建議</span>
+                    <span class="advice-avg-val" id="adviceVal">-- / --</span>
+                </div>
+                <div class="advice-desc" id="adviceText">
+                    建議內容會顯示在這裡...
+                </div>
+            </div>
             <div class="chart-section">
                 <div class="chart-header">
                     <h3 class="chart-title">📈 趨勢變化</h3>
@@ -435,7 +467,47 @@
 
         updateCard('cardMorning', 'valMorning', morningData);
         updateCard('cardEvening', 'valEvening', eveningData);
+
+        // 新增：呼叫計算建議函式
+        updateAdvice(morningData, eveningData);
     }
+
+    // ========= 新增功能：計算平均與顯示建議 =========
+    function updateAdvice(m, e) {
+        const box = document.getElementById('adviceBox');
+        const valEl = document.getElementById('adviceVal');
+        const textEl = document.getElementById('adviceText');
+
+        let totalSys = 0, totalDia = 0, count = 0;
+
+        // 計算邏輯
+        if(m) { totalSys += parseInt(m.sys); totalDia += parseInt(m.dia); count++; }
+        if(e) { totalSys += parseInt(e.sys); totalDia += parseInt(e.dia); count++; }
+
+        // 清除舊的顏色
+        box.classList.remove('status-green', 'status-yellow', 'status-red', 'show');
+
+        if(count > 0) {
+            const avgSys = Math.round(totalSys / count);
+            const avgDia = Math.round(totalDia / count);
+
+            box.classList.add('show');
+            valEl.innerText = `${avgSys} / ${avgDia}`;
+
+            // 判斷邏輯 (可依需求調整標準)
+            if(avgSys < 120 && avgDia < 80) {
+                box.classList.add('status-green');
+                textEl.innerHTML = "🌟 <strong>數值理想！</strong><br>您的血壓維持得很好，請繼續保持。";
+            } else if (avgSys < 135 && avgDia < 85) {
+                box.classList.add('status-yellow');
+                textEl.innerHTML = "⚠️ <strong>稍微偏高</strong><br>請注意飲食清淡，多喝水並保持規律運動。";
+            } else {
+                box.classList.add('status-red');
+                textEl.innerHTML = "🚨 <strong>數值過高注意</strong><br>建議放鬆心情，減少鹽分攝取，必要時諮詢醫師。";
+            }
+        }
+    }
+    // ==============================================
 
     function updateCard(cardId, textId, data) {
         const card = document.getElementById(cardId);
@@ -456,7 +528,6 @@
     // Modal
     function openInputModal(time) {
         const dateStr = document.getElementById('recordDate').value; // YYYY-MM-DD
-        // 簡單格式化日期顯示
         const dateObj = new Date(dateStr);
         const displayDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
 
@@ -505,7 +576,23 @@
             } else {
                 alert('✅ 紀錄成功！');
                 closeModal();
-                fetchData();
+
+                // ========= 新增功能：立即更新畫面，不用等重整 =========
+                // 1. 本地更新數據陣列 (避免等待 API 重新抓取的時間差)
+                const newRecord = { 
+                    name: currentRole, date: date, time: time, 
+                    sys: parseInt(sys), dia: parseInt(dia) 
+                };
+                
+                // 移除舊的(如果有的話)，加入新的
+                allData = allData.filter(d => !(d.date === date && d.time === time));
+                allData.push(newRecord);
+
+                // 2. 立即更新 UI (卡片數值 + 健康建議)
+                updateUIByDate();
+                // ===================================================
+
+                fetchData(); // 背景默默重新同步一次確認無誤
             }
         } catch (error) {
             alert('❌ 寫入失敗，請稍後再試');
@@ -517,7 +604,6 @@
 
     // --- 圖表篩選與繪製 ---
     function filterAndRender() {
-        // 取得下拉選單的天數 (7, 30, 90)
         const range = parseInt(document.getElementById('timeRange').value);
         
         const now = new Date();
