@@ -3,280 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
+    <title>家庭健康血壓站</title>
+    <meta name="description" content="溫馨的家庭血壓紀錄 App，日系雜誌風格，守護全家人的心血管健康。">
     
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="家庭血壓">
-    <link rel="apple-touch-icon" href="icon.png">
-    
-    <title>家庭健康血壓站 - 全家人的心血管守護者</title>
-    <meta name="description" content="專為家庭設計的血壓紀錄應用程式，串接雲端資料庫，提供早晚測量記錄、趨勢圖表分析及專業健康建議。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@300;500&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #e74c3c;
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #333;
+            /* 預設變數 (會透過 JS 動態切換) */
+            --theme-color: #728FCE;  /* 主題色 */
+            --bg-color: #FDFCF8;     /* 米色紙質感背景 */
+            --card-bg: #FFFFFF;
+            --text-color: #595757;   /* 深灰而非純黑，較柔和 */
+            --border-style: 2px dashed var(--theme-color); /* 虛線邊框 */
         }
 
         body {
-            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            font-family: "Kiwi Maru", "Microsoft JhengHei", serif; /* 套用字體 */
             margin: 0;
             padding: 0;
             background-color: var(--bg-color);
+            background-image: radial-gradient(var(--theme-color) 0.5px, transparent 0.5px); /* 點點背景 */
+            background-size: 20px 20px; /* 點點間距 */
             color: var(--text-color);
-            line-height: 1.6;
+            transition: background-color 0.5s, color 0.3s;
         }
 
-        /* 響應式容器 - 解決 320px/768px/1440px 寬度問題 */
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 600px; /* 稍微縮窄一點，更有雜誌排版感 */
             margin: 0 auto;
             padding: 20px;
             box-sizing: border-box;
-            overflow-x: hidden;
         }
 
-        /* Hero 區 & 標題 */
+        /* Header 區塊 */
         header {
             text-align: center;
             margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            border: var(--border-style);
         }
 
         h1 {
-            color: var(--primary-color);
+            color: var(--theme-color);
             margin: 10px 0;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
         }
 
-        /* 角色切換按鈕 */
-        .role-selector {
+        .role-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 5px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 角色切換按鈕區 */
+        .role-group {
             display: flex;
+            gap: 15px;
             justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .role-btn {
-            padding: 10px 20px;
-            border: 2px solid var(--primary-color);
+            border: 2px solid var(--theme-color);
             background: white;
-            border-radius: 20px;
+            color: var(--text-color);
+            border-radius: 15px;
             cursor: pointer;
+            font-family: "Kiwi Maru";
             font-weight: bold;
             transition: all 0.3s;
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.1); /* 可愛硬陰影 */
         }
 
+        .role-btn:hover { transform: translateY(-2px); }
         .role-btn.active {
-            background: var(--primary-color);
+            background: var(--theme-color);
             color: white;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* 卡片樣式 */
+        /* 爸爸媽媽：大按鈕 */
+        .btn-large {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            flex: 1; /* 平均分配寬度 */
+        }
+
+        /* 小孩：小按鈕 */
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.95rem;
+            flex: 1;
+        }
+
+        /* 卡片共用樣式 */
         .card {
             background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
             margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 裝飾性的小標籤 (Tape effect) */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 25px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1;
         }
 
-        /* 輸入表單 */
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        /* 輸入表單優化 */
+        .input-group { 
+            margin-bottom: 25px; /* 加大間距 (需求2) */
+        }
+        
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: var(--theme-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
         
         input, select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 12px;
             box-sizing: border-box;
-            font-size: 16px;
+            font-size: 1rem;
+            background-color: #fafafa;
+            color: #555;
+            font-family: "Kiwi Maru";
+            transition: border-color 0.3s;
         }
 
-        .bp-inputs { display: flex; gap: 15px; }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--theme-color);
+            background-color: white;
+        }
+
+        .bp-inputs { display: flex; gap: 20px; }
         .bp-inputs div { flex: 1; }
 
-        /* 按鈕樣式 */
         button.submit-btn {
             width: 100%;
-            padding: 15px;
-            background-color: var(--accent-color);
+            padding: 16px;
+            background-color: var(--theme-color);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 18px;
+            border-radius: 12px;
+            font-size: 1.2rem;
             cursor: pointer;
-            font-weight: bold;
+            font-family: "Kiwi Maru";
             margin-top: 10px;
-            transition: background 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
         }
 
-        button.submit-btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
+        button.submit-btn:active { transform: scale(0.98); }
 
-        button.submit-btn:hover:not(:disabled) {
-            background-color: #c0392b;
-        }
-
-        /* 提示與分析 */
+        /* 溫馨提示區 */
         .tips {
-            background-color: #e8f6f3;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: #2c3e50;
-            margin-top: 20px;
-        }
-
-        .chart-container {
+            background-color: #fff;
+            border: 2px dashed var(--theme-color);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
             position: relative;
-            height: 300px;
-            width: 100%;
+        }
+        
+        .tips h3 {
+            color: var(--theme-color);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .analysis-box {
-            background-color: #fdf2e9;
-            border-left: 5px solid #d35400;
-            padding: 15px;
-            margin-top: 20px;
+        /* 圖表篩選器 */
+        .filter-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-select {
+            width: auto;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            border-radius: 20px;
+            border: 1px solid var(--theme-color);
+            color: var(--theme-color);
+            background: white;
         }
 
+        /* 狀態標籤 */
         .status-badge {
             display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 5px 12px;
+            border-radius: 15px;
             color: white;
-            font-weight: bold;
-            margin-left: 10px;
+            font-weight: normal;
             font-size: 0.9rem;
+            margin-left: 10px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
         }
 
         footer {
             text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            font-size: 0.8rem;
-            color: #666;
+            margin-top: 50px;
+            font-size: 0.85rem;
+            color: #999;
         }
         
-        /* 針對小螢幕優化 */
-        @media (max-width: 768px) {
-            h1 { font-size: 1.5rem; }
-            .card { padding: 15px; }
+        footer a { color: var(--theme-color); text-decoration: none; border-bottom: 1px dotted; }
+
+        /* 裝飾小插圖 (CSS繪製或Emoji) */
+        .cute-deco {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 0;
+            pointer-events: none;
         }
+
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <img src="https://cdn-icons-png.flaticon.com/512/2966/2966486.png" alt="心臟健康圖示" width="60" height="60">
-        <h1>家庭血壓健康站</h1>
+        <div class="role-icon" id="headerIcon">👔</div>
+        <h1 id="headerTitle">爸爸的健康日記</h1>
         
-        <div class="role-selector">
-            <button class="role-btn active" onclick="setRole('爸爸')">爸爸</button>
-            <button class="role-btn" onclick="setRole('媽媽')">媽媽</button>
-            <button class="role-btn" onclick="setRole('大女兒')">大女兒</button>
-            <button class="role-btn" onclick="setRole('兒子')">兒子</button>
-            <button class="role-btn" onclick="setRole('小女兒')">小女兒</button>
+        <div class="role-group">
+            <button class="role-btn btn-large active" onclick="setRole('爸爸')">爸爸</button>
+            <button class="role-btn btn-large" onclick="setRole('媽媽')">媽媽</button>
+        </div>
+        <div class="role-group">
+            <button class="role-btn btn-small" onclick="setRole('大女兒')">大女兒</button>
+            <button class="role-btn btn-small" onclick="setRole('兒子')">兒子</button>
+            <button class="role-btn btn-small" onclick="setRole('小女兒')">小女兒</button>
         </div>
     </header>
 
     <section class="card">
         <div class="input-group">
-            <label for="recordDate">測量日期</label>
+            <label>📅 測量日期</label>
             <input type="date" id="recordDate">
         </div>
 
         <div class="input-group">
-            <label for="recordTime">測量時段</label>
+            <label>⏰ 測量時段</label>
             <select id="recordTime">
-                <option value="早上">早上 (起床後1小時內)</option>
-                <option value="晚上">晚上 (睡前1小時內)</option>
+                <option value="早上">☀️ 早上 (起床後)</option>
+                <option value="晚上">🌙 晚上 (睡前)</option>
             </select>
         </div>
 
         <div class="bp-inputs">
             <div class="input-group">
-                <label for="sysVal">收縮壓 (高)</label>
-                <input type="number" id="sysVal" placeholder="mmHg" inputmode="numeric">
+                <label>收縮壓 (高)</label>
+                <input type="number" id="sysVal" placeholder="120" inputmode="numeric">
             </div>
             <div class="input-group">
-                <label for="diaVal">舒張壓 (低)</label>
-                <input type="number" id="diaVal" placeholder="mmHg" inputmode="numeric">
+                <label>舒張壓 (低)</label>
+                <input type="number" id="diaVal" placeholder="80" inputmode="numeric">
             </div>
         </div>
 
-        <button class="submit-btn" onclick="saveData()">確認紀錄</button>
+        <button class="submit-btn" onclick="saveData()">✨ 記錄今天數值</button>
 
         <div class="tips">
-            <h3>👨‍⚕️ 測量小叮嚀 (722原則)</h3>
-            <ul>
-                <li>量測前休息 5 分鐘，保持平靜。</li>
-                <li>手臂與心臟同高，不說話、不翹腳。</li>
-                <li>早晚各量 2 次，取平均值紀錄。</li>
+            <h3>🍵 健康小貼士</h3>
+            <ul style="padding-left: 20px; line-height: 1.8; color: #666;">
+                <li><strong>722 原則：</strong>連續 7 天、早晚各量 2 次、每次量 2 遍取平均。</li>
+                <li>量測前深呼吸，休息 5 分鐘。</li>
+                <li><a href="https://www.hpa.gov.tw/Pages/List.aspx?nodeid=214" target="_blank">點此查看衛福部更詳細的衛教資訊</a></li>
             </ul>
         </div>
     </section>
 
-    <hr style="border: 0; border-top: 1px solid #ddd; margin: 30px 0;">
-
     <section class="card">
-        <h2>📊 近 10 天趨勢圖</h2>
-        <div class="chart-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-size: 1.3rem; color: var(--theme-color);">📈 趨勢變化</h2>
+            
+            <div class="filter-container">
+                <select id="timeRange" class="filter-select" onchange="filterAndRender()">
+                    <option value="7">近 1 週</option>
+                    <option value="30">近 1 個月</option>
+                    <option value="90">近 3 個月</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="height: 300px; width: 100%;">
             <canvas id="bpChart"></canvas>
         </div>
 
-        <div class="analysis-box" id="analysisResult">
-            <p>正在連線至雲端資料庫...</p>
+        <div id="analysisResult" style="margin-top: 20px; padding: 15px; background: #fafafa; border-radius: 10px;">
+            <p>☁️ 資料讀取中...</p>
         </div>
     </section>
 
     <footer>
-        <p>系統架構：Node.js (Zeabur) + Google Sheets</p>
-        <a href="https://www.hpa.gov.tw/Pages/List.aspx?nodeid=214" target="_blank">衛生福利部高血壓防治資訊</a>
+        Designed with ❤️ for Family
     </footer>
 </div>
 
 <script>
     // ==========================================
-    // ⚠️ 設定區：請將此處替換為您的 Zeabur 網址
-    // 例如：'https://family-health.zeabur.app/api/records'
+    // ⚠️ 設定區：請確認這是您的 Zeabur API
     // ==========================================
     const API_BASE_URL = 'https://family-health.zeabur.app/api/records'; 
 
+    // --- 1. 定義角色主題設定 (需求4) ---
+    const ROLE_THEMES = {
+        '爸爸': { color: '#728FCE', icon: '👔', title: '爸爸的健康日記', bgPattern: 'radial-gradient(#728FCE 0.5px, transparent 0.5px)' },
+        '媽媽': { color: '#E5989B', icon: '🌸', title: '媽媽的健康日記', bgPattern: 'radial-gradient(#E5989B 0.5px, transparent 0.5px)' },
+        '大女兒': { color: '#F4D35E', icon: '🎀', title: '大女兒的紀錄', bgPattern: 'radial-gradient(#F4D35E 0.5px, transparent 0.5px)' },
+        '兒子': { color: '#83BCA9', icon: '🧢', title: '兒子的紀錄', bgPattern: 'radial-gradient(#83BCA9 0.5px, transparent 0.5px)' },
+        '小女兒': { color: '#B79CED', icon: '🧸', title: '小女兒的紀錄', bgPattern: 'radial-gradient(#B79CED 0.5px, transparent 0.5px)' }
+    };
+
     let currentRole = '爸爸';
+    let allData = []; // 儲存抓回來的原始資料，供篩選用
     let myChart = null;
 
-    // 初始化：設定日期為今天，並讀取資料
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('recordDate').valueAsDate = new Date();
+        applyTheme('爸爸'); // 初始化主題
         fetchData();
     });
 
-    // 切換角色
+    // --- 切換角色與主題 ---
     function setRole(role) {
         currentRole = role;
-        // 更新按鈕樣式
+        applyTheme(role);
+        fetchData();
+    }
+
+    function applyTheme(role) {
+        const theme = ROLE_THEMES[role];
+        const root = document.documentElement;
+
+        // 1. 設定 CSS 變數
+        root.style.setProperty('--theme-color', theme.color);
+        
+        // 2. 更新畫面元素
+        document.getElementById('headerIcon').innerText = theme.icon;
+        document.getElementById('headerTitle').innerText = theme.title;
+        
+        // 3. 更新按鈕狀態
         document.querySelectorAll('.role-btn').forEach(btn => {
             btn.classList.remove('active');
             if(btn.innerText === role) btn.classList.add('active');
         });
-        // 切換後自動重新讀取資料
-        fetchData();
     }
 
-    // 1. 儲存資料 (POST 到 Node.js)
+    // --- API 互動 ---
     async function saveData() {
         const date = document.getElementById('recordDate').value;
         const time = document.getElementById('recordTime').value;
@@ -285,95 +399,106 @@
         const btn = document.querySelector('.submit-btn');
 
         if(!sys || !dia) {
-            alert('請輸入完整的收縮壓與舒張壓數值');
+            alert('記得輸入數值喔！');
             return;
         }
 
-        // 鎖定按鈕避免重複發送
-        btn.innerText = '資料寫入中...';
+        btn.innerText = '🎈 努力寫入中...';
         btn.disabled = true;
-
-        const payload = {
-            name: currentRole,
-            date: date,
-            time: time,
-            sys: sys,
-            dia: dia
-        };
 
         try {
             const response = await fetch(API_BASE_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json' // 告訴 Node.js 這是 JSON
-                },
-                body: JSON.stringify(payload)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: currentRole, date, time, sys, dia })
             });
 
-            if (!response.ok) throw new Error('伺服器回應錯誤');
+            if (!response.ok) throw new Error('Error');
 
-            const result = await response.json();
-            alert('✅ 紀錄成功！');
-            
-            // 清空輸入欄位
+            alert('✅ 紀錄完成！繼續保持健康喔！');
             document.getElementById('sysVal').value = '';
             document.getElementById('diaVal').value = '';
-            
-            // 重新讀取圖表
             fetchData(); 
 
         } catch (error) {
-            console.error('Error:', error);
-            alert('❌ 儲存失敗，請檢查網路連線或伺服器狀態');
+            alert('❌ 糟糕，網路有點問題');
         } finally {
-            btn.innerText = '確認紀錄';
+            btn.innerText = '✨ 記錄今天數值';
             btn.disabled = false;
         }
     }
 
-    // 2. 讀取資料 (GET 從 Node.js)
     async function fetchData() {
         const analysisDiv = document.getElementById('analysisResult');
-        analysisDiv.innerHTML = '<p>🔄 資料讀取中...</p>';
+        analysisDiv.innerHTML = '<p>☁️ 資料讀取中...</p>';
 
         try {
-            // 呼叫 Zeabur API
             const response = await fetch(`${API_BASE_URL}?name=${encodeURIComponent(currentRole)}`);
-            if (!response.ok) throw new Error('讀取失敗');
+            if (!response.ok) throw new Error('Fetch error');
 
-            const data = await response.json();
+            allData = await response.json(); // 存入全域變數
             
-            // 繪圖與分析
-            renderChart(data);
-            analyzeHealth(data);
+            // 呼叫篩選與繪圖功能
+            filterAndRender();
 
         } catch (error) {
-            console.error('Error:', error);
-            analysisDiv.innerHTML = '<p style="color:red">無法讀取資料，請確認後端伺服器是否啟動。</p>';
+            console.error(error);
+            analysisDiv.innerHTML = '<p>無法讀取資料，請確認後端是否正常運作。</p>';
         }
     }
 
-    // 3. Chart.js 繪圖邏輯
+    // --- 篩選資料 (近1週/1月/3月) ---
+    function filterAndRender() {
+        const range = parseInt(document.getElementById('timeRange').value);
+        
+        // 如果後端還沒改掉 .slice(-10)，這裡最多只會顯示 10 筆，
+        // 但邏輯上我們會嘗試過濾日期
+        
+        const now = new Date();
+        const cutoffDate = new Date();
+        cutoffDate.setDate(now.getDate() - range);
+
+        // 過濾資料 (假設後端回傳的 date 格式是 YYYY-MM-DD)
+        const filteredData = allData.filter(d => {
+            const recordDate = new Date(d.date);
+            return recordDate >= cutoffDate;
+        });
+
+        // 如果過濾後資料太少，為了圖表好看，還是顯示原始資料的最後幾筆 (防呆)
+        const displayData = filteredData.length > 0 ? filteredData : allData.slice(-range); // 簡單 fallback
+
+        renderChart(displayData);
+        analyzeHealth(displayData);
+    }
+
+    // --- 繪圖設定 (日系柔和配色) ---
     function renderChart(data) {
         const ctx = document.getElementById('bpChart').getContext('2d');
-        
-        // 如果沒資料，清空圖表
-        if (data.length === 0) {
+        const theme = ROLE_THEMES[currentRole]; // 取得目前主題色
+
+        if(data.length === 0) {
             if(myChart) myChart.destroy();
             return;
         }
 
         const labels = data.map(d => {
-            // 簡單處理日期格式，只顯示 月/日
-            const dateParts = d.date.split('-'); // 假設後端回傳 YYYY-MM-DD
-            const shortDate = dateParts.length > 1 ? `${dateParts[1]}/${dateParts[2]}` : d.date;
-            return `${shortDate} (${d.time})`;
+            // 自動偵測日期格式
+            const dateObj = new Date(d.date);
+            
+            // 如果日期讀不到，就直接顯示原始文字 (防呆)
+            if (isNaN(dateObj.getTime())) return d.date; 
+            
+            // 格式化成 "月/日" (例如 12/7)
+            return `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
         });
-
+        
         const sysData = data.map(d => d.sys);
         const diaData = data.map(d => d.dia);
 
         if(myChart) myChart.destroy();
+
+        // 設定 Chart.js 全域字體
+        Chart.defaults.font.family = "'Kiwi Maru', 'Microsoft JhengHei'";
 
         myChart = new Chart(ctx, {
             type: 'line',
@@ -383,27 +508,38 @@
                     {
                         label: '收縮壓',
                         data: sysData,
-                        borderColor: '#e74c3c',
-                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                        tension: 0.2,
-                        fill: true
+                        borderColor: theme.color, // 使用主題色
+                        backgroundColor: theme.color, 
+                        pointBackgroundColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        borderWidth: 2,
+                        tension: 0.4, // 柔和曲線
                     },
                     {
                         label: '舒張壓',
                         data: diaData,
-                        borderColor: '#2980b9',
-                        backgroundColor: 'rgba(41, 128, 185, 0.1)',
-                        tension: 0.2,
-                        fill: true
+                        borderColor: '#aaa', // 舒張壓用灰色陪襯
+                        borderDash: [5, 5],  // 虛線
+                        pointRadius: 0,      // 不顯示點
+                        borderWidth: 2,
+                        tension: 0.4
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { usePointStyle: true, boxWidth: 8 }
+                    }
+                },
                 scales: {
-                    y: {
-                        beginAtZero: false,
+                    x: { grid: { display: false } }, // 隱藏 X 軸網格，更乾淨
+                    y: { 
+                        beginAtZero: false, 
+                        grid: { color: '#f0f0f0' },
                         suggestedMin: 60,
                         suggestedMax: 160
                     }
@@ -412,10 +548,9 @@
         });
     }
 
-    // 4. 健康數值分析
     function analyzeHealth(data) {
         if (!data || data.length === 0) {
-            document.getElementById('analysisResult').innerHTML = '<p>尚無紀錄，請輸入第一筆資料。</p>';
+            document.getElementById('analysisResult').innerHTML = '<p>目前區間無資料。</p>';
             return;
         }
 
@@ -427,28 +562,31 @@
         const avgSys = Math.round(totalSys / data.length);
         const avgDia = Math.round(totalDia / data.length);
 
-        // 判斷邏輯
         let status = '正常';
-        let color = '#27ae60'; 
-        let advice = '維持得很好！';
+        let color = '#83BCA9'; 
+        let advice = '很棒喔！繼續保持平靜的心情。';
 
+        if (avgSys >= 130 || avgDia >= 80) {
+            status = '注意';
+            color = '#F4D35E'; 
+            advice = '稍微偏高囉，這幾天記得少吃鹹的。';
+        }
         if (avgSys >= 140 || avgDia >= 90) {
-            status = '高血壓警示';
-            color = '#c0392b'; // 紅色
-            advice = '數值偏高，建議就醫諮詢，並注意飲食減鹽。';
-        } else if (avgSys >= 130 || avgDia >= 80) {
-            status = '血壓偏高';
-            color = '#e67e22'; // 橘色
-            advice = '已達警戒值，請開始注意生活作息與運動。';
+            status = '過高';
+            color = '#E5989B';
+            advice = '血壓有點高，建議找醫生聊聊喔。';
         }
 
         document.getElementById('analysisResult').innerHTML = `
-            <h3>${currentRole} 的健康報告 (近 ${data.length} 筆平均)</h3>
-            <p style="font-size: 1.1rem;">
-                平均血壓：<strong>${avgSys} / ${avgDia}</strong> mmHg 
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="margin:0; color: ${color}">平均 ${avgSys} / ${avgDia}</h3>
+                    <small style="color: #888">區間平均值</small>
+                </div>
                 <span class="status-badge" style="background-color: ${color}">${status}</span>
-            </p>
-            <p>👨‍⚕️ <strong>建議：</strong> ${advice}</p>
+            </div>
+            <hr style="border: 0; border-top: 1px dashed #ddd; margin: 10px 0;">
+            <p style="margin:0; color: #666;">📝 ${advice}</p>
         `;
     }
 </script>
