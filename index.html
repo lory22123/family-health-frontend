@@ -2,29 +2,23 @@
 <html lang="zh-Hant-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>家庭健康血壓站</title>
-    <meta name="description" content="溫馨的家庭血壓紀錄 App，日系雜誌風格，守護全家人的心血管健康。">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家庭血壓記錄站</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="家庭血壓">
     <link rel="apple-touch-icon" href="icon.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@300;500&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            /* 🎨 配色優化：增強對比 */
-            --theme-color: #728FCE;  
-            --bg-color: #F2EFE9;     /* 背景改深一點的奶茶色，對比白色卡片更明顯 */
+            --theme-color: #728FCE;
+            --bg-color: #F2EFE9;
             --card-bg: #FFFFFF;
-            --text-color: #4A4A4A;   /* 字體加深，閱讀更清晰 */
-            --input-border: #D1D1D1; /* 輸入框邊框加深 */
+            --text-color: #4A4A4A;
         }
 
         body {
@@ -32,12 +26,9 @@
             margin: 0;
             padding: 0;
             background-color: var(--bg-color);
-            /* 背景點點稍微加深，增加質感 */
             background-image: radial-gradient(#d0c9c0 1px, transparent 1px);
             background-size: 20px 20px;
             color: var(--text-color);
-            transition: background-color 0.5s, color 0.3s;
-            /* 防止 iOS 點擊高亮 */
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -45,316 +36,362 @@
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
-            padding-top: 40px; /* 避開 iOS 瀏海 */
             box-sizing: border-box;
+            padding-bottom: 80px;
+            min-height: 100vh;
+            background-color: rgba(255,255,255,0.3); /* 微微透白背景讓內容集中 */
         }
 
-        /* Header 區塊 */
-        header {
+        /* --- 1. 頂部設計：家庭血壓記錄站 (招牌風格) --- */
+        .app-header-banner {
+            background-color: var(--theme-color);
+            color: #fff;
+            padding: 20px 15px 30px 15px; /* 下方留白多一點給 Tab 插入 */
             text-align: center;
-            margin-bottom: 25px;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.95); /* 不透明度提高 */
-            border-radius: 24px;
-            /* 增加立體陰影 */
-            box-shadow: 0 8px 20px rgba(114, 143, 206, 0.15); 
-            border: 2px dashed var(--theme-color);
-        }
-
-        h1 {
-            color: var(--theme-color);
-            margin: 10px 0;
-            font-size: 1.7rem;
-            letter-spacing: 1.5px;
-            text-shadow: 1px 1px 0px rgba(255,255,255,1);
-        }
-
-        .role-icon {
-            font-size: 3.5rem;
-            display: block;
-            margin-bottom: 5px;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); /* Icon 也有陰影 */
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        /* 角色切換按鈕區 */
-        .role-group {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 12px;
-        }
-
-        .role-btn {
-            border: 2px solid var(--theme-color);
-            background: #fff;
-            color: var(--text-color);
-            border-radius: 16px;
-            cursor: pointer;
-            font-family: "Kiwi Maru";
-            font-weight: bold;
-            transition: all 0.2s;
-            /* 按鈕陰影加深，看起來像實體按鈕 */
-            box-shadow: 0 4px 0px rgba(0,0,0,0.1); 
-        }
-
-        .role-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 rgba(0,0,0,0);
-        }
-
-        .role-btn.active {
-            background: var(--theme-color);
-            color: white;
-            box-shadow: 0 4px 0px rgba(0,0,0,0.2); /* 作用中的按鈕陰影更深 */
-            border-color: var(--theme-color);
-        }
-
-        .btn-large {
-            padding: 12px 24px;
-            font-size: 1.1rem;
-            flex: 1;
-        }
-
-        .btn-small {
-            padding: 8px 12px;
-            font-size: 0.95rem;
-            flex: 1;
-        }
-
-        /* 卡片共用樣式 - 這是這次改最大的地方 */
-        .card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 30px 25px;
-            /* 重點：加強陰影，讓卡片浮起來 */
-            box-shadow: 0 12px 24px rgba(100, 100, 100, 0.12), 0 4px 8px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
+            border-radius: 0 0 30px 30px; /* 下方圓角 */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             position: relative;
-            overflow: visible; /* 讓 tape 不會被切掉 */
-            border: 1px solid rgba(0,0,0,0.02); /* 極細微邊框增加邊緣清晰度 */
+            margin-bottom: 20px;
+            transition: background-color 0.5s;
         }
-        
-        /* 紙膠帶效果 */
-        .card::before {
+
+        /* 縫線裝飾效果 */
+        .app-header-banner::after {
             content: '';
             position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%) rotate(-1deg);
-            width: 110px;
-            height: 28px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            z-index: 1;
-            /* 兩端鋸齒狀 */
-            clip-path: polygon(2% 0%, 98% 0%, 100% 100%, 0% 100%);
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 2px dashed rgba(255,255,255,0.5);
+            border-radius: 0 0 20px 20px;
+            pointer-events: none;
         }
 
-        .input-group { margin-bottom: 25px; }
-        
-        label { 
-            display: block; 
-            margin-bottom: 10px; 
-            color: var(--theme-color);
-            font-weight: 900; /* 字體加粗 */
-            font-size: 1.15rem;
-        }
-        
-        /* 輸入框樣式優化 */
-        input, select {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid var(--input-border); /* 邊框加深 */
-            border-radius: 14px;
-            box-sizing: border-box;
-            font-size: 1.1rem; /* 字體加大 */
-            background-color: #fff; /* 純白背景 */
-            color: #333;
-            font-family: "Kiwi Maru";
-            transition: all 0.3s;
-            /* 輸入框內陰影，增加凹陷感 */
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
-            -webkit-appearance: none; /* 移除 iOS 預設樣式 */
+        .app-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--theme-color);
-            box-shadow: 0 0 0 4px rgba(114, 143, 206, 0.2); /* 聚焦光暈 */
-        }
-
-        .bp-inputs { display: flex; gap: 15px; }
-        .bp-inputs div { flex: 1; }
-
-        button.submit-btn {
-            width: 100%;
-            padding: 18px;
-            background-color: var(--theme-color);
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 1.25rem;
-            cursor: pointer;
-            font-family: "Kiwi Maru";
-            margin-top: 15px;
-            box-shadow: 0 6px 15px rgba(114, 143, 206, 0.4); /* 按鈕發光感 */
-            transition: transform 0.1s;
-            font-weight: bold;
-        }
-
-        button.submit-btn:active { transform: scale(0.96); }
-
-        .tips {
-            background-color: #F8F9FA;
-            border: 2px dashed var(--theme-color);
-            padding: 20px;
-            border-radius: 16px;
-            margin-top: 30px;
-        }
-        
-        .tips h3 {
-            color: var(--theme-color);
-            margin-top: 0;
-            font-size: 1.1rem;
-        }
-
-        .filter-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 15px;
-            align-items: center;
-        }
-        
-        .filter-select {
-            width: auto;
-            padding: 8px 24px 8px 16px;
-            font-size: 0.95rem;
-            border-radius: 20px;
-            border: 2px solid var(--theme-color);
-            color: var(--theme-color);
-            background: white;
-            cursor: pointer;
-            font-weight: bold;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23728FCE%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px top 50%;
-            background-size: 10px auto;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 12px;
-            color: white;
-            font-weight: bold;
+        .sub-title {
             font-size: 0.9rem;
-            margin-left: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            opacity: 0.9;
+            margin-top: 5px;
+            font-weight: normal;
         }
 
-        footer {
+        /* 動態角色標題 (原本的 header 簡化) */
+        .dynamic-header {
             text-align: center;
-            margin-top: 50px;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--theme-color);
+        }
+        .role-icon { font-size: 2rem; animation: bounce 2s infinite; }
+        .dynamic-title { font-size: 1.2rem; font-weight: bold; }
+        
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+        /* --- Tab 頁籤設計 --- */
+        .tabs-wrapper {
+            display: flex;
+            justify-content: center; /* 居中 */
+            gap: 8px;
+            margin-top: -35px; /* 向上重疊到 Banner 上 */
+            margin-bottom: 10px;
+            padding: 0 10px;
+            position: relative;
+            z-index: 2;
+            flex-wrap: wrap; /* 手機過窄時自動換行 */
+        }
+
+        .tab-btn {
+            background: #fff;
+            border: 2px solid var(--theme-color); /* 配合主題色 */
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: "Kiwi Maru";
+            font-weight: bold;
+            color: var(--theme-color);
+            cursor: pointer;
+            transition: all 0.3s;
             font-size: 0.9rem;
-            color: #888;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tab-btn.active {
+            background: var(--theme-color);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* 主卡片區 (左右留邊距) */
+        .content-area {
+            padding: 0 20px;
+        }
+
+        .main-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 1;
+            min-height: 300px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        /* 日期選擇 */
+        .date-picker-group {
+            text-align: center;
+            margin-bottom: 25px;
+            background: #fcfcfc;
+            padding: 10px;
+            border-radius: 15px;
+            border: 2px solid #f0f0f0;
+        }
+        input[type="date"] {
+            font-family: "Kiwi Maru";
+            font-size: 1.2rem;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-weight: bold;
+            outline: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* --- 早晚狀態顯示區 (並列顯示) --- */
+        .status-container {
+            display: flex;
+            gap: 15px;
+        }
+
+        .status-card {
+            flex: 1;
+            background: #fff;
+            border: 2px solid #eee;
+            border-radius: 16px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-card:active { transform: scale(0.96); }
+        
+        /* 未量測狀態 */
+        .status-card.empty {
+            border-style: dashed;
+            color: #aaa;
+            background: #fafafa;
+        }
+        .status-card.empty::after {
+            content: '+ 點此紀錄';
+            display: block;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: var(--theme-color);
+        }
+
+        /* 已量測狀態 */
+        .status-card.filled {
+            border-color: var(--theme-color);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: inset 0 0 0 1px var(--theme-color); /* 內框線 */
+        }
+        .status-card.filled .time-label { color: var(--theme-color); }
+
+        .time-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+            color: #666;
+        }
+        .bp-value {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--text-color);
+        }
+        .bp-unit { font-size: 0.8rem; color: #888; font-weight: normal; }
+
+        /* 趨勢圖區 */
+        .chart-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px dashed #eee;
+        }
+
+        /* --- 彈跳視窗 (Modal) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); /* 背景深一點 */
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-overlay.show { display: flex; animation: fadeIn 0.3s; }
+
+        .modal-box {
+            background: #fff;
+            width: 85%;
+            max-width: 350px;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            border-top: 10px solid var(--theme-color); /* 頂部色條 */
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
             font-weight: bold;
         }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+        .input-row label { flex: 1; font-weight: bold; text-align: left; color: #555; }
+        .input-row input {
+            flex: 1.5;
+            padding: 10px;
+            font-size: 1.3rem;
+            border: none;
+            background: transparent;
+            text-align: right;
+            font-family: "Kiwi Maru";
+            color: var(--theme-color);
+            font-weight: bold;
+        }
+        .input-row input:focus { outline: none; }
+
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #eee;
+            color: #666;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-confirm {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: var(--theme-color);
+            color: #fff;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        footer { text-align: center; margin-top: 30px; font-size: 0.8rem; color: #aaa; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <div class="role-icon" id="headerIcon">👔</div>
-        <h1 id="headerTitle">爸爸的健康日記</h1>
-        
-        <div class="role-group">
-            <button class="role-btn btn-large active" onclick="setRole('爸爸')">爸爸</button>
-            <button class="role-btn btn-large" onclick="setRole('媽媽')">媽媽</button>
-        </div>
-        <div class="role-group">
-            <button class="role-btn btn-small" onclick="setRole('大女兒')">大女兒</button>
-            <button class="role-btn btn-small" onclick="setRole('兒子')">兒子</button>
-            <button class="role-btn btn-small" onclick="setRole('小女兒')">小女兒</button>
-        </div>
+    <header class="app-header-banner">
+        <h1 class="app-title">家庭血壓記錄站</h1>
+        <div class="sub-title">守護全家人的心血管健康</div>
     </header>
 
-    <section class="card">
-        <div class="input-group">
-            <label>📅 測量日期</label>
-            <input type="date" id="recordDate">
+    <div class="tabs-wrapper" id="tabsContainer">
+        <button class="tab-btn active" onclick="setRole('爸爸')">爸爸</button>
+        <button class="tab-btn" onclick="setRole('媽媽')">媽媽</button>
+        <button class="tab-btn" onclick="setRole('大女兒')">大女兒</button>
+        <button class="tab-btn" onclick="setRole('兒子')">兒子</button>
+        <button class="tab-btn" onclick="setRole('小女兒')">小女兒</button>
+    </div>
+
+    <div class="content-area">
+        <div class="dynamic-header">
+            <span class="role-icon" id="headerIcon">👔</span>
+            <span class="dynamic-title" id="headerTitle">爸爸的健康日記</span>
         </div>
 
-        <div class="input-group">
-            <label>⏰ 測量時段</label>
-            <select id="recordTime">
-                <option value="早上">☀️ 早上 (起床後)</option>
-                <option value="晚上">🌙 晚上 (睡前)</option>
-            </select>
-        </div>
-
-        <div class="bp-inputs">
-            <div class="input-group">
-                <label>收縮壓 (高)</label>
-                <input type="number" id="sysVal" placeholder="120" inputmode="numeric">
+        <div class="main-card">
+            <div class="date-picker-group">
+                <input type="date" id="recordDate" onchange="updateUIByDate()">
             </div>
-            <div class="input-group">
-                <label>舒張壓 (低)</label>
-                <input type="number" id="diaVal" placeholder="80" inputmode="numeric">
+
+            <div class="status-container">
+                <div class="status-card empty" id="cardMorning" onclick="openInputModal('早上')">
+                    <span class="time-label">☀️ 早上</span>
+                    <div class="bp-content">
+                        <span id="valMorning">未量測</span>
+                    </div>
+                </div>
+
+                <div class="status-card empty" id="cardEvening" onclick="openInputModal('晚上')">
+                    <span class="time-label">🌙 晚上</span>
+                    <div class="bp-content">
+                        <span id="valEvening">未量測</span>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <button class="submit-btn" onclick="saveData()">✨ 記錄今天數值</button>
-
-        <div class="tips">
-            <h3>🍵 健康小貼士</h3>
-            <ul style="padding-left: 20px; line-height: 1.8; color: #666;">
-                <li><strong>722 原則：</strong>連續 7 天、早晚各量 2 次、每次量 2 遍取平均。</li>
-                <li>量測前深呼吸，休息 5 分鐘。</li>
-                <li><a href="https://www.hpa.gov.tw/Pages/List.aspx?nodeid=214" target="_blank" style="color:var(--theme-color)">點此查看衛福部更詳細的衛教資訊</a></li>
-            </ul>
-        </div>
-    </section>
-
-    <section class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin: 0; font-size: 1.3rem; color: var(--theme-color); font-weight:900;">📈 趨勢變化</h2>
-            
-            <div class="filter-container">
-                <select id="timeRange" class="filter-select" onchange="filterAndRender()">
-                    <option value="7">近 1 週</option>
-                    <option value="30">近 1 個月</option>
-                    <option value="90">近 3 個月</option>
-                </select>
+            <div class="chart-section">
+                <h3 style="color:var(--theme-color); margin-bottom:10px; font-size: 1rem;">📈 近期趨勢 (時間軸)</h3>
+                <div style="height: 250px;">
+                    <canvas id="bpChart"></canvas>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div style="height: 300px; width: 100%;">
-            <canvas id="bpChart"></canvas>
+    <footer>Designed with ❤️ for Family</footer>
+</div>
+
+<div class="modal-overlay" id="inputModal">
+    <div class="modal-box">
+        <div class="modal-title" id="modalTitle">記錄血壓</div>
+        <input type="hidden" id="modalTime"> <div class="input-row">
+            <label>收縮壓 (高)</label>
+            <input type="number" id="inputSys" placeholder="120" inputmode="numeric">
+        </div>
+        <div class="input-row">
+            <label>舒張壓 (低)</label>
+            <input type="number" id="inputDia" placeholder="80" inputmode="numeric">
         </div>
 
-        <div id="analysisResult" style="margin-top: 20px; padding: 20px; background: #F8F9FA; border-radius: 16px; border: 2px solid #E9ECEF;">
-            <p style="text-align: center; color: #999;">☁️ 資料讀取中...</p>
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeModal()">取消</button>
+            <button class="btn-confirm" onclick="submitData()">確認寫入</button>
         </div>
-    </section>
-
-    <footer>
-        Designed with ❤️ for Family
-    </footer>
+    </div>
 </div>
 
 <script>
     // ==========================================
-    // ⚠️ 記得把這裡換回您的 Zeabur API 網址！
+    // ⚠️ 請修改為您的 Zeabur 網址
     // ==========================================
     const API_BASE_URL = 'https://family-health.zeabur.app/api/records'; 
 
@@ -367,47 +404,119 @@
     };
 
     let currentRole = '爸爸';
-    let allData = []; 
+    let allData = []; // 該家人的所有資料
     let myChart = null;
 
+    // 初始化
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('recordDate').valueAsDate = new Date();
         applyTheme('爸爸');
         fetchData();
     });
 
+    // 切換家人 (Tab)
     function setRole(role) {
         currentRole = role;
         applyTheme(role);
         fetchData();
     }
 
+    // 套用主題與更新 Tab 樣式
     function applyTheme(role) {
         const theme = ROLE_THEMES[role];
         const root = document.documentElement;
         root.style.setProperty('--theme-color', theme.color);
+        
+        // 更新動態標題
         document.getElementById('headerIcon').innerText = theme.icon;
         document.getElementById('headerTitle').innerText = theme.title;
-        
-        document.querySelectorAll('.role-btn').forEach(btn => {
+
+        // 更新 Tab 狀態
+        document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
             if(btn.innerText === role) btn.classList.add('active');
         });
     }
 
-    async function saveData() {
+    // 從後端讀取資料
+    async function fetchData() {
+        try {
+            // 介面稍微顯示讀取中(選用)
+            const response = await fetch(`${API_BASE_URL}?name=${encodeURIComponent(currentRole)}`);
+            if (!response.ok) throw new Error('Fetch error');
+            allData = await response.json();
+            
+            // 資料回來後，更新 UI 和 圖表
+            updateUIByDate();
+            renderChart(allData);
+
+        } catch (error) {
+            console.error(error);
+            // alert('無法讀取資料，請檢查網路'); // 怕太吵先註解掉
+        }
+    }
+
+    // 根據日期更新「早/晚卡片」的狀態
+    function updateUIByDate() {
+        const selectedDate = document.getElementById('recordDate').value; // YYYY-MM-DD
+        
+        // 從 allData 裡找今天的資料
+        const morningData = allData.find(d => d.date === selectedDate && d.time === '早上');
+        const eveningData = allData.find(d => d.date === selectedDate && d.time === '晚上');
+
+        updateCard('cardMorning', 'valMorning', morningData);
+        updateCard('cardEvening', 'valEvening', eveningData);
+    }
+
+    function updateCard(cardId, textId, data) {
+        const card = document.getElementById(cardId);
+        const text = document.getElementById(textId);
+        
+        if (data) {
+            // 有資料
+            card.className = 'status-card filled';
+            text.innerHTML = `<span class="bp-value">${data.sys}/${data.dia}</span> <span class="bp-unit">mmHg</span>`;
+            card.onclick = () => alert('這個時段已經有資料囉！');
+        } else {
+            // 無資料
+            card.className = 'status-card empty';
+            text.innerText = '未量測';
+            const time = cardId === 'cardMorning' ? '早上' : '晚上';
+            card.onclick = () => openInputModal(time);
+        }
+    }
+
+    // --- Modal 控制 ---
+    function openInputModal(time) {
+        const selectedDate = document.getElementById('recordDate').value;
+        const dateObj = new Date(selectedDate);
+        const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+
+        document.getElementById('modalTitle').innerText = `記錄 ${dateStr} ${time}`;
+        document.getElementById('modalTime').value = time;
+        document.getElementById('inputSys').value = '';
+        document.getElementById('inputDia').value = '';
+        document.getElementById('inputModal').classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('inputModal').classList.remove('show');
+    }
+
+    // --- 送出資料 ---
+    async function submitData() {
         const date = document.getElementById('recordDate').value;
-        const time = document.getElementById('recordTime').value;
-        const sys = document.getElementById('sysVal').value;
-        const dia = document.getElementById('diaVal').value;
-        const btn = document.querySelector('.submit-btn');
+        const time = document.getElementById('modalTime').value;
+        const sys = document.getElementById('inputSys').value;
+        const dia = document.getElementById('inputDia').value;
+        const btn = document.querySelector('.btn-confirm');
 
         if(!sys || !dia) {
-            alert('記得輸入數值喔！');
+            alert('請輸入完整的數值');
             return;
         }
 
-        btn.innerText = '🎈 努力寫入中...';
+        btn.innerText = '寫入中...';
         btn.disabled = true;
 
         try {
@@ -417,76 +526,54 @@
                 body: JSON.stringify({ name: currentRole, date, time, sys, dia })
             });
 
-            if (!response.ok) throw new Error('Error');
+            const result = await response.json();
 
-            alert('✅ 紀錄完成！');
-            document.getElementById('sysVal').value = '';
-            document.getElementById('diaVal').value = '';
-            fetchData(); 
+            if (response.status === 409) {
+                alert('⚠️ ' + result.error);
+            } else if (!response.ok) {
+                throw new Error('Server error');
+            } else {
+                alert('✅ 紀錄成功！');
+                closeModal();
+                fetchData();
+            }
 
         } catch (error) {
-            alert('❌ 糟糕，網路有點問題');
+            console.error(error);
+            alert('❌ 寫入失敗，請稍後再試');
         } finally {
-            btn.innerText = '✨ 記錄今天數值';
+            btn.innerText = '確認寫入';
             btn.disabled = false;
         }
     }
 
-    async function fetchData() {
-        const analysisDiv = document.getElementById('analysisResult');
-        analysisDiv.innerHTML = '<p style="text-align:center;">☁️ 資料讀取中...</p>';
-
-        try {
-            const response = await fetch(`${API_BASE_URL}?name=${encodeURIComponent(currentRole)}`);
-            if (!response.ok) throw new Error('Fetch error');
-
-            allData = await response.json();
-            filterAndRender();
-
-        } catch (error) {
-            console.error(error);
-            analysisDiv.innerHTML = '<p>無法讀取資料。</p>';
-        }
-    }
-
-    function filterAndRender() {
-        const range = parseInt(document.getElementById('timeRange').value);
-        const now = new Date();
-        const cutoffDate = new Date();
-        cutoffDate.setDate(now.getDate() - range);
-
-        const filteredData = allData.filter(d => {
-            const recordDate = new Date(d.date);
-            return recordDate >= cutoffDate;
-        });
-
-        const displayData = filteredData.length > 0 ? filteredData : allData.slice(-range); 
-        renderChart(displayData);
-        analyzeHealth(displayData);
-    }
-
+    // --- 繪製圖表 ---
     function renderChart(data) {
         const ctx = document.getElementById('bpChart').getContext('2d');
         const theme = ROLE_THEMES[currentRole];
 
-        if(data.length === 0) {
-            if(myChart) myChart.destroy();
-            return;
-        }
-
-        const labels = data.map(d => {
-            const dateObj = new Date(d.date);
-            if (isNaN(dateObj.getTime())) return d.date; 
-            return `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+        const sortedData = [...data].sort((a, b) => {
+            if (a.date !== b.date) {
+                return new Date(a.date) - new Date(b.date);
+            }
+            return a.time === '早上' ? -1 : 1;
         });
-        
-        const sysData = data.map(d => d.sys);
-        const diaData = data.map(d => d.dia);
+
+        const chartData = sortedData.slice(-14);
+
+        const labels = chartData.map(d => {
+            const dateObj = new Date(d.date);
+            const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+            const timeStr = d.time === '早上' ? '早' : '晚';
+            return `${dateStr} ${timeStr}`;
+        });
+
+        const sysData = chartData.map(d => d.sys);
+        const diaData = chartData.map(d => d.dia);
 
         if(myChart) myChart.destroy();
 
         Chart.defaults.font.family = "'Kiwi Maru', 'Microsoft JhengHei'";
-        Chart.defaults.color = '#666';
 
         myChart = new Chart(ctx, {
             type: 'line',
@@ -497,90 +584,34 @@
                         label: '收縮壓',
                         data: sysData,
                         borderColor: theme.color,
-                        backgroundColor: theme.color, 
+                        backgroundColor: theme.color,
                         pointBackgroundColor: '#fff',
                         pointBorderColor: theme.color,
-                        pointBorderWidth: 3,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        borderWidth: 3,
-                        tension: 0.4,
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        borderWidth: 2,
+                        tension: 0.3,
                     },
                     {
                         label: '舒張壓',
                         data: diaData,
-                        borderColor: '#A0A0A0', 
-                        borderDash: [6, 6],
+                        borderColor: '#aaa',
+                        borderDash: [5, 5],
                         pointRadius: 0,
                         borderWidth: 2,
-                        tension: 0.4
+                        tension: 0.3
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: { usePointStyle: true, boxWidth: 10, padding: 20 }
-                    }
-                },
                 scales: {
-                    x: { 
-                        grid: { display: false },
-                        ticks: { font: { weight: 'bold' } }
-                    }, 
-                    y: { 
-                        beginAtZero: false, 
-                        grid: { color: '#E0E0E0', borderDash: [2, 2] },
-                        suggestedMin: 60,
-                        suggestedMax: 160
-                    }
+                    y: { suggestedMin: 60, suggestedMax: 160 },
+                    x: { ticks: { maxRotation: 45, minRotation: 45 } }
                 }
             }
         });
-    }
-
-    function analyzeHealth(data) {
-        if (!data || data.length === 0) {
-            document.getElementById('analysisResult').innerHTML = '<p>目前區間無資料。</p>';
-            return;
-        }
-
-        let totalSys = 0, totalDia = 0;
-        data.forEach(d => {
-            totalSys += parseInt(d.sys);
-            totalDia += parseInt(d.dia);
-        });
-        const avgSys = Math.round(totalSys / data.length);
-        const avgDia = Math.round(totalDia / data.length);
-
-        let status = '正常';
-        let color = '#83BCA9'; 
-        let advice = '很棒喔！繼續保持平靜的心情。';
-
-        if (avgSys >= 130 || avgDia >= 80) {
-            status = '注意';
-            color = '#F4D35E'; 
-            advice = '稍微偏高囉，這幾天記得少吃鹹的。';
-        }
-        if (avgSys >= 140 || avgDia >= 90) {
-            status = '過高';
-            color = '#E5989B';
-            advice = '血壓有點高，建議找醫生聊聊喔。';
-        }
-
-        document.getElementById('analysisResult').innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div>
-                    <h3 style="margin:0; color: ${color}; font-size:1.4rem;">平均 ${avgSys} / ${avgDia}</h3>
-                    <small style="color: #888; font-weight:bold;">${document.getElementById('timeRange').selectedOptions[0].text}平均值</small>
-                </div>
-                <span class="status-badge" style="background-color: ${color}; font-size:1rem; padding:8px 16px;">${status}</span>
-            </div>
-            <hr style="border: 0; border-top: 2px dashed #ddd; margin: 15px 0;">
-            <p style="margin:0; color: #555; font-size:1rem; line-height:1.6;">📝 ${advice}</p>
-        `;
     }
 </script>
 
