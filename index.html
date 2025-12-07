@@ -39,23 +39,21 @@
             box-sizing: border-box;
             padding-bottom: 80px;
             min-height: 100vh;
-            background-color: rgba(255,255,255,0.3); /* 微微透白背景讓內容集中 */
+            background-color: rgba(255,255,255,0.3);
         }
 
-        /* --- 1. 頂部設計：家庭血壓記錄站 (招牌風格) --- */
+        /* --- 頂部 Banner 設計 --- */
         .app-header-banner {
             background-color: var(--theme-color);
             color: #fff;
-            padding: 20px 15px 30px 15px; /* 下方留白多一點給 Tab 插入 */
+            padding: 20px 15px 35px 15px;
             text-align: center;
-            border-radius: 0 0 30px 30px; /* 下方圓角 */
+            border-radius: 0 0 30px 30px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             position: relative;
             margin-bottom: 20px;
             transition: background-color 0.5s;
         }
-
-        /* 縫線裝飾效果 */
         .app-header-banner::after {
             content: '';
             position: absolute;
@@ -64,7 +62,6 @@
             border-radius: 0 0 20px 20px;
             pointer-events: none;
         }
-
         .app-title {
             font-size: 1.6rem;
             font-weight: 900;
@@ -72,15 +69,43 @@
             margin: 0;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .sub-title { font-size: 0.9rem; opacity: 0.9; margin-top: 5px; }
 
-        .sub-title {
+        /* --- Tab 頁籤設計 --- */
+        .tabs-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: -40px;
+            margin-bottom: 15px;
+            padding: 0 10px;
+            position: relative;
+            z-index: 2;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: #fff;
+            border: 2px solid var(--theme-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: "Kiwi Maru";
+            font-weight: bold;
+            color: var(--theme-color);
+            cursor: pointer;
+            transition: all 0.3s;
             font-size: 0.9rem;
-            opacity: 0.9;
-            margin-top: 5px;
-            font-weight: normal;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .tab-btn.active {
+            background: var(--theme-color);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
         }
 
-        /* 動態角色標題 (原本的 header 簡化) */
+        .content-area { padding: 0 20px; }
+
+        /* 動態角色標題 */
         .dynamic-header {
             text-align: center;
             margin-bottom: 10px;
@@ -92,55 +117,14 @@
         }
         .role-icon { font-size: 2rem; animation: bounce 2s infinite; }
         .dynamic-title { font-size: 1.2rem; font-weight: bold; }
-        
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
-        /* --- Tab 頁籤設計 --- */
-        .tabs-wrapper {
-            display: flex;
-            justify-content: center; /* 居中 */
-            gap: 8px;
-            margin-top: -35px; /* 向上重疊到 Banner 上 */
-            margin-bottom: 10px;
-            padding: 0 10px;
-            position: relative;
-            z-index: 2;
-            flex-wrap: wrap; /* 手機過窄時自動換行 */
-        }
-
-        .tab-btn {
-            background: #fff;
-            border: 2px solid var(--theme-color); /* 配合主題色 */
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-family: "Kiwi Maru";
-            font-weight: bold;
-            color: var(--theme-color);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .tab-btn.active {
-            background: var(--theme-color);
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transform: translateY(-2px);
-        }
-
-        /* 主卡片區 (左右留邊距) */
-        .content-area {
-            padding: 0 20px;
-        }
-
+        /* 主卡片 */
         .main-card {
             background: #fff;
             border-radius: 20px;
             padding: 25px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            position: relative;
-            z-index: 1;
             min-height: 300px;
             border: 1px solid rgba(0,0,0,0.03);
         }
@@ -166,12 +150,8 @@
             width: 100%;
         }
 
-        /* --- 早晚狀態顯示區 (並列顯示) --- */
-        .status-container {
-            display: flex;
-            gap: 15px;
-        }
-
+        /* 早晚卡片 */
+        .status-container { display: flex; gap: 15px; }
         .status-card {
             flex: 1;
             background: #fff;
@@ -182,45 +162,13 @@
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
-            overflow: hidden;
         }
-
         .status-card:active { transform: scale(0.96); }
-        
-        /* 未量測狀態 */
-        .status-card.empty {
-            border-style: dashed;
-            color: #aaa;
-            background: #fafafa;
-        }
-        .status-card.empty::after {
-            content: '+ 點此紀錄';
-            display: block;
-            font-size: 0.8rem;
-            margin-top: 5px;
-            color: var(--theme-color);
-        }
-
-        /* 已量測狀態 */
-        .status-card.filled {
-            border-color: var(--theme-color);
-            background: rgba(255, 255, 255, 1);
-            box-shadow: inset 0 0 0 1px var(--theme-color); /* 內框線 */
-        }
-        .status-card.filled .time-label { color: var(--theme-color); }
-
-        .time-label {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: block;
-            color: #666;
-        }
-        .bp-value {
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: var(--text-color);
-        }
+        .status-card.empty { border-style: dashed; color: #aaa; background: #fafafa; }
+        .status-card.empty::after { content: '+ 點此紀錄'; display: block; font-size: 0.8rem; margin-top: 5px; color: var(--theme-color); }
+        .status-card.filled { border-color: var(--theme-color); background: rgba(255, 255, 255, 1); box-shadow: inset 0 0 0 1px var(--theme-color); }
+        .time-label { font-size: 1.1rem; font-weight: bold; margin-bottom: 8px; display: block; color: #666; }
+        .bp-value { font-size: 1.4rem; font-weight: 900; color: var(--text-color); }
         .bp-unit { font-size: 0.8rem; color: #888; font-weight: normal; }
 
         /* 趨勢圖區 */
@@ -229,12 +177,31 @@
             padding-top: 20px;
             border-top: 2px dashed #eee;
         }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .chart-title { font-size: 1rem; color: var(--theme-color); font-weight: bold; margin: 0; }
+        
+        /* 下拉選單樣式 */
+        .chart-filter {
+            padding: 5px 10px;
+            border-radius: 15px;
+            border: 1px solid var(--theme-color);
+            color: var(--theme-color);
+            font-family: "Kiwi Maru";
+            font-size: 0.9rem;
+            background: #fff;
+            outline: none;
+        }
 
-        /* --- 彈跳視窗 (Modal) --- */
+        /* --- 彈跳視窗 (Modal) 重構 --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); /* 背景深一點 */
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(4px);
             display: none;
             justify-content: center;
@@ -245,73 +212,83 @@
 
         .modal-box {
             background: #fff;
-            width: 85%;
-            max-width: 350px;
+            width: 90%;
+            max-width: 360px;
             padding: 25px;
-            border-radius: 20px;
+            border-radius: 24px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             text-align: center;
-            border-top: 10px solid var(--theme-color); /* 頂部色條 */
+            border-top: 8px solid var(--theme-color);
         }
 
         .modal-title {
             font-size: 1.3rem;
             color: var(--text-color);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-weight: bold;
         }
 
-        .input-row {
+        /* 左右並排容器 */
+        .modal-dual-inputs {
             display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            background: #f9f9f9;
-            padding: 5px 10px;
-            border-radius: 10px;
+            gap: 15px; /* 兩個輸入框中間的間距 */
+            margin-bottom: 25px;
         }
-        .input-row label { flex: 1; font-weight: bold; text-align: left; color: #555; }
-        .input-row input {
-            flex: 1.5;
-            padding: 10px;
-            font-size: 1.3rem;
-            border: none;
-            background: transparent;
-            text-align: right;
+
+        /* 個別輸入區塊 */
+        .input-block {
+            flex: 1; /* 平均分配寬度 */
+            background: #F7F9FC;
+            padding: 15px 10px;
+            border-radius: 16px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        /* 當輸入框聚焦時，外框變色 */
+        .input-block:focus-within {
+            border-color: var(--theme-color);
+            background: #fff;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .input-field {
+            width: 100%;
+            font-size: 1.8rem; /* 字體加大，方便點擊 */
             font-family: "Kiwi Maru";
+            font-weight: 900;
             color: var(--theme-color);
-            font-weight: bold;
+            background: transparent;
+            border: none;
+            text-align: center;
+            padding: 0;
+            outline: none;
         }
-        .input-row input:focus { outline: none; }
+        /* 修正 placeholder 顏色 */
+        .input-field::placeholder { color: #ddd; font-weight: normal; font-size: 1.5rem; }
 
-        .modal-btns {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .btn-cancel {
+        .modal-btns { display: flex; gap: 10px; }
+        .btn-cancel, .btn-confirm {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            background: #eee;
-            color: #666;
-            border-radius: 12px;
+            border-radius: 14px;
             font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
         }
-        .btn-confirm {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: var(--theme-color);
-            color: #fff;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
+        .btn-cancel { background: #eee; color: #666; }
+        .btn-confirm { background: var(--theme-color); color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         footer { text-align: center; margin-top: 30px; font-size: 0.8rem; color: #aaa; }
     </style>
 </head>
@@ -345,21 +322,23 @@
             <div class="status-container">
                 <div class="status-card empty" id="cardMorning" onclick="openInputModal('早上')">
                     <span class="time-label">☀️ 早上</span>
-                    <div class="bp-content">
-                        <span id="valMorning">未量測</span>
-                    </div>
+                    <div class="bp-content"><span id="valMorning">未量測</span></div>
                 </div>
-
                 <div class="status-card empty" id="cardEvening" onclick="openInputModal('晚上')">
                     <span class="time-label">🌙 晚上</span>
-                    <div class="bp-content">
-                        <span id="valEvening">未量測</span>
-                    </div>
+                    <div class="bp-content"><span id="valEvening">未量測</span></div>
                 </div>
             </div>
 
             <div class="chart-section">
-                <h3 style="color:var(--theme-color); margin-bottom:10px; font-size: 1rem;">📈 近期趨勢 (時間軸)</h3>
+                <div class="chart-header">
+                    <h3 class="chart-title">📈 趨勢變化</h3>
+                    <select id="timeRange" class="chart-filter" onchange="filterAndRender()">
+                        <option value="7" selected>近 1 週</option>
+                        <option value="30">近 1 個月</option>
+                        <option value="90">近 3 個月</option>
+                    </select>
+                </div>
                 <div style="height: 250px;">
                     <canvas id="bpChart"></canvas>
                 </div>
@@ -373,13 +352,17 @@
 <div class="modal-overlay" id="inputModal">
     <div class="modal-box">
         <div class="modal-title" id="modalTitle">記錄血壓</div>
-        <input type="hidden" id="modalTime"> <div class="input-row">
-            <label>收縮壓 (高)</label>
-            <input type="number" id="inputSys" placeholder="120" inputmode="numeric">
-        </div>
-        <div class="input-row">
-            <label>舒張壓 (低)</label>
-            <input type="number" id="inputDia" placeholder="80" inputmode="numeric">
+        <input type="hidden" id="modalTime">
+
+        <div class="modal-dual-inputs">
+            <div class="input-block">
+                <label class="input-label">收縮壓 (高)</label>
+                <input type="number" id="inputSys" class="input-field" placeholder="120" inputmode="numeric">
+            </div>
+            <div class="input-block">
+                <label class="input-label">舒張壓 (低)</label>
+                <input type="number" id="inputDia" class="input-field" placeholder="80" inputmode="numeric">
+            </div>
         </div>
 
         <div class="modal-btns">
@@ -391,7 +374,7 @@
 
 <script>
     // ==========================================
-    // ⚠️ 請修改為您的 Zeabur 網址
+    // ⚠️ 請務必確認這裡的網址是您的 Zeabur 網址
     // ==========================================
     const API_BASE_URL = 'https://family-health.zeabur.app/api/records'; 
 
@@ -404,63 +387,49 @@
     };
 
     let currentRole = '爸爸';
-    let allData = []; // 該家人的所有資料
+    let allData = []; 
     let myChart = null;
 
-    // 初始化
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('recordDate').valueAsDate = new Date();
         applyTheme('爸爸');
         fetchData();
     });
 
-    // 切換家人 (Tab)
     function setRole(role) {
         currentRole = role;
         applyTheme(role);
         fetchData();
     }
 
-    // 套用主題與更新 Tab 樣式
     function applyTheme(role) {
         const theme = ROLE_THEMES[role];
-        const root = document.documentElement;
-        root.style.setProperty('--theme-color', theme.color);
-        
-        // 更新動態標題
+        document.documentElement.style.setProperty('--theme-color', theme.color);
         document.getElementById('headerIcon').innerText = theme.icon;
         document.getElementById('headerTitle').innerText = theme.title;
 
-        // 更新 Tab 狀態
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
             if(btn.innerText === role) btn.classList.add('active');
         });
     }
 
-    // 從後端讀取資料
     async function fetchData() {
         try {
-            // 介面稍微顯示讀取中(選用)
             const response = await fetch(`${API_BASE_URL}?name=${encodeURIComponent(currentRole)}`);
             if (!response.ok) throw new Error('Fetch error');
             allData = await response.json();
             
-            // 資料回來後，更新 UI 和 圖表
             updateUIByDate();
-            renderChart(allData);
+            filterAndRender(); // 載入後預設執行一次圖表篩選
 
         } catch (error) {
             console.error(error);
-            // alert('無法讀取資料，請檢查網路'); // 怕太吵先註解掉
         }
     }
 
-    // 根據日期更新「早/晚卡片」的狀態
     function updateUIByDate() {
-        const selectedDate = document.getElementById('recordDate').value; // YYYY-MM-DD
-        
-        // 從 allData 裡找今天的資料
+        const selectedDate = document.getElementById('recordDate').value;
         const morningData = allData.find(d => d.date === selectedDate && d.time === '早上');
         const eveningData = allData.find(d => d.date === selectedDate && d.time === '晚上');
 
@@ -473,12 +442,10 @@
         const text = document.getElementById(textId);
         
         if (data) {
-            // 有資料
             card.className = 'status-card filled';
             text.innerHTML = `<span class="bp-value">${data.sys}/${data.dia}</span> <span class="bp-unit">mmHg</span>`;
             card.onclick = () => alert('這個時段已經有資料囉！');
         } else {
-            // 無資料
             card.className = 'status-card empty';
             text.innerText = '未量測';
             const time = cardId === 'cardMorning' ? '早上' : '晚上';
@@ -486,24 +453,27 @@
         }
     }
 
-    // --- Modal 控制 ---
+    // Modal
     function openInputModal(time) {
-        const selectedDate = document.getElementById('recordDate').value;
-        const dateObj = new Date(selectedDate);
-        const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+        const dateStr = document.getElementById('recordDate').value; // YYYY-MM-DD
+        // 簡單格式化日期顯示
+        const dateObj = new Date(dateStr);
+        const displayDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
 
-        document.getElementById('modalTitle').innerText = `記錄 ${dateStr} ${time}`;
+        document.getElementById('modalTitle').innerText = `記錄 ${displayDate} ${time}`;
         document.getElementById('modalTime').value = time;
         document.getElementById('inputSys').value = '';
         document.getElementById('inputDia').value = '';
         document.getElementById('inputModal').classList.add('show');
+        
+        // 自動聚焦第一個輸入框
+        setTimeout(() => document.getElementById('inputSys').focus(), 100);
     }
 
     function closeModal() {
         document.getElementById('inputModal').classList.remove('show');
     }
 
-    // --- 送出資料 ---
     async function submitData() {
         const date = document.getElementById('recordDate').value;
         const time = document.getElementById('modalTime').value;
@@ -537,9 +507,7 @@
                 closeModal();
                 fetchData();
             }
-
         } catch (error) {
-            console.error(error);
             alert('❌ 寫入失敗，請稍後再試');
         } finally {
             btn.innerText = '確認寫入';
@@ -547,29 +515,45 @@
         }
     }
 
-    // --- 繪製圖表 ---
-    function renderChart(data) {
-        const ctx = document.getElementById('bpChart').getContext('2d');
-        const theme = ROLE_THEMES[currentRole];
+    // --- 圖表篩選與繪製 ---
+    function filterAndRender() {
+        // 取得下拉選單的天數 (7, 30, 90)
+        const range = parseInt(document.getElementById('timeRange').value);
+        
+        const now = new Date();
+        const cutoffDate = new Date();
+        cutoffDate.setDate(now.getDate() - range);
 
-        const sortedData = [...data].sort((a, b) => {
+        // 篩選日期
+        const filteredData = allData.filter(d => {
+            const recordDate = new Date(d.date);
+            return recordDate >= cutoffDate;
+        });
+
+        // 排序：日期小到大 -> 同一天早上先
+        const sortedData = filteredData.sort((a, b) => {
             if (a.date !== b.date) {
                 return new Date(a.date) - new Date(b.date);
             }
             return a.time === '早上' ? -1 : 1;
         });
 
-        const chartData = sortedData.slice(-14);
+        renderChart(sortedData);
+    }
 
-        const labels = chartData.map(d => {
+    function renderChart(data) {
+        const ctx = document.getElementById('bpChart').getContext('2d');
+        const theme = ROLE_THEMES[currentRole];
+
+        const labels = data.map(d => {
             const dateObj = new Date(d.date);
             const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
             const timeStr = d.time === '早上' ? '早' : '晚';
             return `${dateStr} ${timeStr}`;
         });
 
-        const sysData = chartData.map(d => d.sys);
-        const diaData = chartData.map(d => d.dia);
+        const sysData = data.map(d => d.sys);
+        const diaData = data.map(d => d.dia);
 
         if(myChart) myChart.destroy();
 
@@ -608,7 +592,10 @@
                 maintainAspectRatio: false,
                 scales: {
                     y: { suggestedMin: 60, suggestedMax: 160 },
-                    x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                    x: { ticks: { maxRotation: 45, minRotation: 45, font: {size: 10} } }
+                },
+                plugins: {
+                    legend: { labels: { boxWidth: 10, usePointStyle: true } }
                 }
             }
         });
